@@ -29,30 +29,31 @@ def _cpu_value(repository_ctx):
   result = repository_ctx.execute(["uname", "-s"])
   return result.stdout.strip()
 
-def _os_dependent_http_archive(ctx):
-  """Implementation of the http_archive rule."""
-  if ctx.attr.build_file and ctx.attr.build_file_content:
-    ctx.fail("Only one of build_file and build_file_content can be provided.")
+def _os_dependent_http_archive(repository_ctx):
+  """Implementation of the os_dependent_http_archive rule."""
+  if repository_ctx.attr.build_file and repository_ctx.attr.build_file_content:
+    repository_ctx.fail("Only one of build_file and build_file_content can be provided.")
 
-  cpu_value = _cpu_value(ctx)
+  cpu_value = _cpu_value(repository_ctx)
+
+  repository_ctx.file('WORKSPACE', "workspace(name = \"{name}\")\n".format(name=repository_ctx.name))
+  if repository_ctx.attr.build_file:
+    repository_ctx.symlink(repository_ctx.attr.build_file, 'BUILD')
+  else:
+    repository_ctx.file('BUILD', repository_ctx.attr.build_file_content)
+
   if cpu_value == "Darwin":
-    ctx.download_and_extract(ctx.attr.urls_darwin, "", ctx.attr.sha256_darwin, ctx.attr.type,
-      ctx.attr.strip_prefix)
+    repository_ctx.download_and_extract(repository_ctx.attr.urls_darwin, "", repository_ctx.attr.sha256_darwin, repository_ctx.attr.type,
+      repository_ctx.attr.strip_prefix)
   elif cpu_value == "Linux":
-    ctx.download_and_extract(ctx.attr.urls_linux, "", ctx.attr.sha256_linux, ctx.attr.type,
-      ctx.attr.strip_prefix)
+    repository_ctx.download_and_extract(repository_ctx.attr.urls_linux, "", repository_ctx.attr.sha256_linux, repository_ctx.attr.type,
+      repository_ctx.attr.strip_prefix)
   elif cpu_value == "Windows":
-    ctx.download_and_extract(ctx.attr.urls_windows, "", ctx.attr.sha256_windows, ctx.attr.type,
-      ctx.attr.strip_prefix)
+    repository_ctx.download_and_extract(repository_ctx.attr.urls_windows, "", repository_ctx.attr.sha256_windows, repository_ctx.attr.type,
+      repository_ctx.attr.strip_prefix)
   else:
     fail("%s is not supported" % cpu_value)
 
-  ctx.file("WORKSPACE", "workspace(name = \"{name}\")\n".format(name=ctx.name))
-  if ctx.attr.build_file:
-    print("ctx.attr.build_file %s" % str(ctx.attr.build_file))
-    ctx.symlink(ctx.attr.build_file, "BUILD")
-  else:
-    ctx.file("BUILD", ctx.attr.build_file_content)
 
 _os_dependent_http_archive_attrs = {
   "strip_prefix": attr.string(),
