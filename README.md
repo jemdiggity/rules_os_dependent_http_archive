@@ -9,7 +9,7 @@ use the result of `uname -s` for POSIX/Linux
 git_repository(
     name = "com_github_jemdiggity_rules_os_dependent_http_archive",
     remote = "https://github.com/jemdiggity/rules_os_dependent_http_archive.git",
-    commit = "",
+    commit = "b1e3ed2fd829dfd1602bc31df4804ff34149f659",
 )
 load("@com_github_jemdiggity_rules_os_dependent_http_archive//os_dependent_http_archive.bzl", "os_dependent_http_archive")
 
