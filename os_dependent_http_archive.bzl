@@ -23,9 +23,9 @@ def _cpu_value(repository_ctx):
   """
   os_name = repository_ctx.os.name.lower()
   if os_name.startswith("mac os"):
-    return "Darwin"
+    return "darwin"
   if os_name.find("windows") != -1:
-    return "Windows"
+    return "windows"
   result = repository_ctx.execute(["uname", "-s"])
   return result.stdout.strip()
 
@@ -42,30 +42,20 @@ def _os_dependent_http_archive(repository_ctx):
   else:
     repository_ctx.file('BUILD', repository_ctx.attr.build_file_content)
 
-  if cpu_value == "Darwin":
-    repository_ctx.download_and_extract(repository_ctx.attr.urls_darwin, "", repository_ctx.attr.sha256_darwin, repository_ctx.attr.type,
-      repository_ctx.attr.strip_prefix)
-  elif cpu_value == "Linux":
-    repository_ctx.download_and_extract(repository_ctx.attr.urls_linux, "", repository_ctx.attr.sha256_linux, repository_ctx.attr.type,
-      repository_ctx.attr.strip_prefix)
-  elif cpu_value == "Windows":
-    repository_ctx.download_and_extract(repository_ctx.attr.urls_windows, "", repository_ctx.attr.sha256_windows, repository_ctx.attr.type,
-      repository_ctx.attr.strip_prefix)
-  else:
-    fail("%s is not supported" % cpu_value)
-
+  repository_ctx.download_and_extract(
+    repository_ctx.attr.urls[cpu_value],
+    "",
+    repository_ctx.attr.sha256[cpu_value],
+    repository_ctx.attr.type,
+    repository_ctx.attr.strip_prefix)
 
 _os_dependent_http_archive_attrs = {
   "strip_prefix": attr.string(),
   "type": attr.string(),
   "build_file": attr.label(),
   "build_file_content": attr.string(),
-  "urls_linux": attr.string_list(),
-  "urls_darwin": attr.string_list(),
-  "urls_windows": attr.string_list(),
-  "sha256_linux": attr.string(),
-  "sha256_darwin": attr.string(),
-  "sha256_windows": attr.string(),
+  "urls": attr.string_list_dict(),
+  "sha256": attr.string_dict(),
 }
 
 os_dependent_http_archive = repository_rule(
