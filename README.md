@@ -3,7 +3,8 @@
 For the dictionary keys:
 use "darwin" for Mac OS
 use "windows" for Windows
-use the result of `uname -s` for POSIX/Linux
+use "linux" for Linux/FreeBSD
+use the result of `uname -s` for anything else
 
 ```python
 git_repository(
