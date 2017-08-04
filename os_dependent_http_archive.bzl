@@ -24,6 +24,8 @@ def _cpu_value(repository_ctx):
   os_name = repository_ctx.os.name.lower()
   if os_name.startswith("mac os"):
     return "darwin"
+  if any([x in os_name for x in ["linux", "freebsd"]]):
+    return "linux"
   if os_name.find("windows") != -1:
     return "windows"
   result = repository_ctx.execute(["uname", "-s"])
